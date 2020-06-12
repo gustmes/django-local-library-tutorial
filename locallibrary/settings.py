@@ -28,7 +28,9 @@ SECRET_KEY = os.environ.get('DJANGO_SECRET_KEY', '7j@g@smt7$4n^prh8#94js7#q8bj1#
 # DEBUG = False
 DEBUG = os.environ.get('DJANGO_DEBUG', '') != 'False'
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = [
+    'django-tutorial-local-library.herokuapp.com',
+]
 
 
 # Application definition
