@@ -75,6 +75,7 @@ class BookInstance(models.Model):
     language = models.ForeignKey(Language, on_delete=models.SET_NULL, null=True)
 
     borrower = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, blank=True)
+
     class Meta:
         ordering= ['due_back']
         permissions = (("can_mark_returned", "Set book as returned"),)
@@ -91,6 +92,12 @@ class BookInstance(models.Model):
         if self.due_back and date.today() > self.due_back:
             return True
         return False
+
+    def save(self, *args, **kwargs):
+        if self.status == 'a':
+            self.due_back = None
+            self.borrower = None
+        super(BookInstance, self).save(*args, **kwargs)
 
 class Author(models.Model):
     first_name = models.CharField(max_length=100)

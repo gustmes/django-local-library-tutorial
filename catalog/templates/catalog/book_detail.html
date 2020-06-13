@@ -29,6 +29,8 @@
         </p>
       {% if copy.status != 'a' %}
         <p><strong>Due to be returned:</strong> {{ copy.due_back }}</p>
+      {% elif user.is_authenticated %}
+        <p><a href="{% url 'book_borrow' copy.id %}">Borrow this copy.</a></p>
       {% endif %}
       <p><strong>Imprint:</strong> {{ copy.imprint }}</p>
     {% endfor %}

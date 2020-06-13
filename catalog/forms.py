@@ -19,3 +19,17 @@ class RenewBookForm(forms.Form):
             raise ValidationError(_('Invalid date - renewal more than 4 weeks ahead'))
 
         return data
+
+class BorrowBookForm(forms.Form):
+    due_back = forms.DateField(help_text="Enter a date between now and 4 weeks (default 3).")
+
+    def clean_due_back(self):
+        data = self.cleaned_data['due_back']
+
+        if data < datetime.date.today():
+            raise ValidationError(_('Invalid date - due back in past'))
+
+        if data > datetime.date.today() + datetime.timedelta(weeks=4):
+            raise ValidationError(_('Invalid date - due back more than 4 weeks ahead'))
+
+        return data

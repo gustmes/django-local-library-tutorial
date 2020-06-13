@@ -73,7 +73,7 @@ class BorrowedBooksListView(PermissionRequiredMixin, generic.ListView):
     def get_queryset(self):
         return BookInstance.objects.filter(status__exact='o').order_by('due_back')
 
-from catalog.forms import RenewBookForm
+from catalog.forms import RenewBookForm, BorrowBookForm
 
 @permission_required('catalog.can_mark_returned')
 def renew_book_librarian(request, pk):
@@ -105,6 +105,38 @@ def renew_book_librarian(request, pk):
     }
 
     return render(request, 'catalog/book_renew_librarian.html', context)
+
+from django.contrib.auth.decorators import login_required
+
+@login_required
+def book_borrow(request, id):
+    book_instance = get_object_or_404(BookInstance, id=id)
+
+    # If this is a POST request, then process the Form data
+    if request.method == 'POST':
+
+        # Create a form instance and populate it with data from the request (binding)
+        form = BorrowBookForm(request.POST)
+
+        if form.is_valid():
+            book_instance.due_back = form.cleaned_data['due_back']
+            book_instance.status = 'o'
+            book_instance.borrower = request.user
+            book_instance.save()
+
+        return HttpResponseRedirect(reverse('my_borrowed'))
+
+    # If this is a GET (or any other method) create the default form
+    else:
+        proposed_due_back_date = datetime.date.today() + datetime.timedelta(weeks=3)
+        form = BorrowBookForm(initial={'due_back': proposed_due_back_date})
+
+    context = {
+        'form': form,
+        'book_instance': book_instance,
+    }
+
+    return render(request, 'catalog/book-borrow.html', context)
 
 from django.views.generic.edit import CreateView, UpdateView, DeleteView
 from django.urls import reverse_lazy
